@@ -143,3 +143,260 @@ nothing to commit, working tree clean
 - `git status` показывает текущее состояние рабочей директории и индекса. Сейчас рабочая директория чистая (clean) — нет изменений для коммита.
 - `git diff` показывает различия между рабочим каталогом и индексом (staging area). Так как изменений нет, команда ничего не выводит.
 EOF.
+### 2. Использование git status и git diff после добавления описания в отчет
+После добавления нового раздела в файл `reports/lab1.md`, я выполнил **команду**:
+`git status`
+
+**Результат:**
+```
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   reports/lab1.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+**Что показывает `git status` ?**
+- Файл reports/lab1.md был изменен (modified).
+- Изменения не добавлены в индекс (staging area).
+- Git предлагает использовать git add для добавления файла или git restore для отмены изменений.
+**командa:**
+`git diff` 
+
+**Результат:**
+```
+Строки с + (зелёные) — это добавленный текст
+
+Строки с - (красные) — это удалённый текст
+```
+**Что показывает `git diff` ?**
+- Какой файл я менял: Я работал над файлом reports/lab1.md — это мой отчёт по лабораторной работе.
+### 3. Добавление изменений в индекс
+**Команда:**
+```
+git add reports/lab1.md
+git status
+```
+**Результат:**
+```
+On branch master
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   reports/lab1.md
+```
+**Описание:**
+После git add файл reports/lab1.md находится в индексе (staging area) и готов к коммиту.
+### 4. Изменения в `README.md`
+Я открыл файл ,
+и внёс изменения
+
+**Описание:**
+`git diff README.md` показывает изменения только в указанном файле.
+### 5. Коммит только `lab1.md`
+**Команда:**
+ ```
+ git commit -m "new version of lab1.md"
+```
+**Результат:**
+```
+[master d2c9460] Обновлен отчет lab1.md
+ 1 file changed, 15 insertions(+)
+```
+**Результат** `git status`:
+```
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   README.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+
+**Описание:**
+Коммит создан только для файла `reports/lab1.md`**.**` README.md` остался измененным, но не добавленным в индекс.
+
+## *Этап 4: Откат изменений*
+### 1. Проверка незакоммиченных изменений в `README`.md
+Перед откатом убедимся, что в файле`README.md` есть незакоммиченные изменения:
+``` bash 
+PS C:\Users\Shaam\Desktop\my_project> git status
+On branch master
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   README.md
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+### 2. Откат изменений в `README.md` с помощью `git restore`
+Отменяем изменения в файле `README.md`:
+```
+git restore README.md 
+```
+Проверяем, что изменения исчезли:
+```
+git status
+
+\Users\Shaam\Desktop\my_project> git status
+On branch master
+nothing to commit, working tree clean
+
+
+# to read what is written in the file 
+cat README.md
+```
+**Описание:** Команда `git restore README.md` полностью отменила все изменения в файле, вернув его к состоянию последнего коммита.
+### 3. Удаление файла reports/lab1.md
+```
+# Сначала создадим резервную копию 
+cp reports/lab1.md reports/lab1.md.backup
+
+# Удаляем файл
+rm reports/lab1.md
+
+
+# Проверка удаления:
+ls reports/
+```
+**Результат:**  `lab1.md.backup`
+ ### 4. Выполнить команду `git status` и объяснить ее вывод.
+ ```
+ git status
+ 
+ # Результат
+ >>> On branch master
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        deleted:    reports/lab1.md
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        reports/lab1.md.backup
+ ```
+  **Описание:**
+ - deleted: reports/lab1.md — Git обнаружил, что файл `lab1.md` был удален. Он отслеживался Git, поэтому удаление отображается как изменение.
+- Untracked files: reports/lab1.md.backup — резервная копия файла, которую Git видит, но не отслеживает (новый файл).
+- Git предлагает два варианта для удаленного файла:
+ **`git add`** — зафиксировать удаление (удалить из репозитория)
+**`git restore`** — восстановить файл
+
+### 5.  Восстановление удаленного файла
+`git restore reports/lab1.md`
+ 
+ **Проверка состояния после восстановления:**
+ `git status`
+**Результат:** 
+```
+On branch master
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        reports/lab1.md.backup
+
+no changes added to commit (use "git add" and/or "git commit -a")
+```
+ **Проверка наличия файла:**
+`ls reports/`
+**Результат:**
+```
+lab1.md  lab1.md.backup
+```
+**Объяснение:**
+ - Команда git restore reports/lab1.md восстановила удаленный файл из последнего коммита
+ - Файл `lab1.md` снова появился в директории reports/
+ - Git больше не показывает deleted:
+**reports/lab1.md** в статусе
+ - Резервная копия lab1.md.backup осталась как untracked file (неотслеживаемый файл)
+ 
+## *Этап 5: Ветвление версий*
+### 1. Вывод имени текущей ветки
+Для просмотра текущей ветки используется **команда**:
+` git branch`
+*Эта команда показывает список всех веток. Текущая ветка отмечена символом*
+**вывод : **
+` * master `
+### 2. Создание новой ветки 
+` git branch lab1-1 `
+**Проверка состояния после восстановления:**
+`git branch`
+
+**Результат:**
+```
+  lab1-1
+* master
+```
+### 3. Переключение на новую ветку
+Переключимся на созданную ветку:
+` git checkout lab1-1 `
+**Результат:**
+```
+Switched to branch 'lab1-1'
+```
+Проверим, что переключение прошло успешно:
+` git status `
+**Результат:**
+```
+* lab1-1
+  master
+```
+** изменения есть в файлах ?**
+Сначала я открыл файл README.md и вручную добавил изменения.
+С помощью команды `git status` можно увидеть, что в файле есть изменения.
+```
+On branch lab1-1
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+        modified:   reports/lab1.md
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+        reports/lab1.md.backup
+```
+*Объяснение действий по шагам:*
+- Я был в ветке `lab1-1`
+ изменил файл `reports/lab1.md`
+Но я **не сделал** `git add` и `git commit`.
+
+- Я переключился на `master`
+`git checkout master`
+Git показал:
+M       `reports/lab1.md`
+M = Modified (изменён).
+Git перенёс изменения с собой в master, потому что они ещё не закоммичены.
+- Я проверил статус в `master`
+`git status`
+Git показал:
+```
+modified:   reports/lab1.md
+untracked: reports/lab1.md.backup
+```
+Значит, изменения всё ещё здесь, но они не привязаны ни к одной ветке.
+
+ - вернулся обратно в `lab1-1`
+ `git checkout lab1-1`
+Git снова сказал:
+```
+M       reports/lab1.md
+```
+Изменения вернулись со мной обратно в ветку `lab1-1`.
+
+- Наконец, я сделал `add` и `commit` в ветке `lab1-1`
+```
+git add reports/lab1.md`
+git commit -m "new text has been added to the branch lab1-1"
+```
+ - Я снова переключился на master
+```
+git checkout master
+git status
+```
+
+**Результат:**
+Изменения остались только в `lab1-1`, потому что они закоммичены туда.
+
+**Когда мы работаем в разных ветках, изменения скрыты и не видны в других ветках, пока мы не сделаем коммит в нужной ветке.**
+
+**Это особенность Git, а не ошибка.**
+**Она позволяет работать над разными задачами отдельно, не мешая основной ветке master**.
